@@ -1,0 +1,14 @@
+{
+  "name": "rights-dashboard-example",
+  "version": "1.0.0",
+  "description": "student rights dashboard template",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "fanlan",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.4.14"
+  }
+}
