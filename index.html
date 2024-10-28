@@ -1,159 +1,221 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-tw">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.1/echarts.min.js" integrity="sha512-OTbGFYPLe3jhy4bUwbB8nls0TFgz10kn0TLkmyA+l3FyivDs31zsXCjOis7YGDtE2Jsy0+fzW+3/OVoPVujPmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <title>元智大學學生會學權儀表板</title>
-    <meta name="description" content="元智大學學生會各項學生權利案辦理進度一覽" />
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://rights.yzusa.tw">
-    <meta property="og:title" content="元智大學學生會 - 學權儀表板" />
-    <meta property="og:description" content="元智大學學生會各項學生權利案辦理進度一覽"/>
-    <meta property="og:image" content="https://docs.google.com/spreadsheets/d/e/2PACX-1vRgQl4LfaqBclXxx3Viri6DgwM-iY7EYOvrwpbzm95ykfT7RwnV5iUjwmc-dmY0eCilPtqOliOmzTg0/pubchart?oid=1633780512&format=image"/>
-    <link rel="canonical" href="https://rights.yzusa.tw" />
-</head>
-<body class="bg-gray-100">
-    
-    <div class="min-h-screen relative"  id="app">
-        <div class="z-10 sticky top-0 bg-white/75 drop-shadow-md backdrop-blur-md">
-            <p class="p-2 pl-10 text-xl font-bold">元智大學學生會 學權儀表板</p>
-        </div>
-        <!-- <div class="bg-white flex justify-center w-full p-4">
-            <img src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRgQl4LfaqBclXxx3Viri6DgwM-iY7EYOvrwpbzm95ykfT7RwnV5iUjwmc-dmY0eCilPtqOliOmzTg0/pubchart?oid=1633780512&format=image" alt="">
-        </div> -->
-        <ring-chart class="bg-white h-[32rem] w-full" :data="stats"></ring-chart>
-        <div class="p-2 pb-16 xl:px-64 grid grid-cols-1 md:grid-cols-3">
-            <div class="" v-for="project in projects">
-                <card :name="project.名稱" :status="project.狀態" :p-description="project.進度"></card>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href="./src/output.css" rel="stylesheet" />
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.1/echarts.min.js"
+            integrity="sha512-OTbGFYPLe3jhy4bUwbB8nls0TFgz10kn0TLkmyA+l3FyivDs31zsXCjOis7YGDtE2Jsy0+fzW+3/OVoPVujPmQ=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+        <title>學生會學權儀表板</title>
+        <meta name="description" content="學生會各項學生權利案辦理進度一覽" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="學生會 - 學權儀表板" />
+        <meta
+            property="og:description"
+            content="學生會各項學生權利案辦理進度一覽"
+        />
+    </head>
+    <body class="bg-gray-100">
+        <div class="min-h-screen relative" id="app">
+            <div
+                class="z-10 sticky top-0 bg-white/75 drop-shadow-md backdrop-blur-md"
+            >
+                <div class="flex justify-between">
+                    <p class="p-2 pl-10 text-xl font-bold">
+                        範例大學學生會 學權儀表板
+                    </p>
+                    <p class="p-2 px-10 text-xl font-bold">
+                        <a
+                            href="//github.com/fanlan1210/rights-dashboard-example"
+                            class="hover:cursor-pointer"
+                            target="_blank"
+                            >GitHub</a
+                        >
+                    </p>
+                </div>
+            </div>
+            <ring-chart
+                class="bg-white h-[32rem] w-full"
+                :data="stats"
+            ></ring-chart>
+            <div class="p-2 pb-16 xl:px-64 grid grid-cols-1 md:grid-cols-3">
+                <div class="" v-for="project in projects">
+                    <card
+                        :name="project.名稱"
+                        :status="project.狀態"
+                        :p-description="project.進度"
+                    ></card>
+                </div>
+            </div>
+            <div class="bg-gray-800 absolute bottom-0 w-full">
+                <p class="p-2 text-center text-white">
+                    ©2024 Example Student Association
+                </p>
             </div>
         </div>
-        <div class="bg-[#2b476c] absolute bottom-0 w-full">
-            <p class="p-2 text-center text-white">©2023 Yuan Ze University Student Association</p>
-        </div>
-    </div>
 
-    <script src="https://unpkg.com/vue@3.4.5"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue3-sfc-loader/dist/vue3-sfc-loader.js"></script>
-    <script>
-
-        const options = {
-        moduleCache: {
-            vue: Vue
-        },
-        async getFile(url) {
-            
-            const res = await fetch(url);
-            if ( !res.ok )
-            throw Object.assign(new Error(res.statusText + ' ' + url), { res });
-            return {
-            getContentData: asBinary => asBinary ? res.arrayBuffer() : res.text(),
-            }
-        },
-        addStyle(textContent) {
-
-            const style = Object.assign(document.createElement('style'), { textContent });
-            const ref = document.head.getElementsByTagName('style')[0] || null;
-            document.head.insertBefore(style, ref);
-        },
-        }
-
-        const { loadModule } = window['vue3-sfc-loader'];
-
-        const app = Vue.createApp({
-            data() {
-                return {
-                    projects: [],
-                    stats: []
-                }
-            },
-            methods: {
-                fetchData() {
-                    const id = '18i4ERupX1FHffrYmYlmYxOpiNGEkE0vCmtGcEtWyPPw';
-                    const gid = '0';
-                    const url = 'https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:json&tq&gid='+gid;
-                    fetch(url)
-                        .then( res => {
-                            if(!res.ok) throw new Error('Cannot fetch data!');
-                            return res.text();
-                        })
-                        .then( rawData => {
-                            let data = JSON.parse(rawData.match(new RegExp('(?:^|\\,)"table":(.*?)(?:}\\);|$)'))[1]);
-                            let table = []
-                            let row = []
-                            data.cols.forEach(colonne => row.push(colonne.label))
-                            table.push(row)
-                            data.rows.forEach(r => {
-                                let row = []
-                                r.c.forEach(cel => {
-                                    try{var value = cel.f ? cel.f : cel.v}
-                                    catch(e){var value = ''}
-                                    row.push(value)
-                                }
-                                )
-                                table.push(row)
-                                }
-                            )
-			                // create a Object using the first row as key
-                            for (let i = 2; i < table.length; i++) {	
-                                let obj = {}
-                                for (let j = 0; j < table[1].length; j++) {
-                                        obj[table[1][j]] = table[i][j]
-                                }
-								this.projects.push(obj)
-							}
-                        } )
+        <script src="https://unpkg.com/vue@3.4.5"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue3-sfc-loader/dist/vue3-sfc-loader.js"></script>
+        <script>
+            const options = {
+                moduleCache: {
+                    vue: Vue,
                 },
-                fetchStat() {
-                    const id = '18i4ERupX1FHffrYmYlmYxOpiNGEkE0vCmtGcEtWyPPw';
-                    const gid = '747570329';
-                    const url = 'https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:json&tq&gid='+gid;
-                    fetch(url)
-                        .then( res => {
-                            if(!res.ok) throw new Error('Cannot fetch data!');
-                            return res.text();
-                        })
-                        .then( rawData => {
-                            let data = JSON.parse(rawData.match(new RegExp('(?:^|\\,)"table":(.*?)(?:}\\);|$)'))[1]);
-                            let table = []
-                            let row = []
-                            data.cols.forEach(colonne => row.push(colonne.label))
-                            table.push(row)
-                            data.rows.forEach(r => {
-                                let row = []
-                                r.c.forEach(cel => {
-                                    try{var value = cel.f ? cel.f : cel.v}
-                                    catch(e){var value = ''}
-                                    row.push(value)
-                                }
-                                )
-                                table.push(row)
-                                }
-                            )
-			                // create a Object using the first row as key
-                            for (let i = 1; i < table.length; i++) {	
-                                let obj = {}
-                                obj[table[0][0]] = table[i][0];
-                                obj[table[0][1]] = parseInt(table[i][1]);
-								this.stats.push(obj)
-							}
-                        } )
-                }
-            },
-            components: {
-                'card': Vue.defineAsyncComponent( () => loadModule('./Card.vue', options) ),
-                'ring-chart': Vue.defineAsyncComponent( () => loadModule('./RingChart.vue', options) )
-            },
-            beforeMount() {
-                this.fetchData();
-                this.fetchStat();
-            }
-        });
+                async getFile(url) {
+                    const res = await fetch(url);
+                    if (!res.ok)
+                        throw Object.assign(
+                            new Error(res.statusText + " " + url),
+                            { res },
+                        );
+                    return {
+                        getContentData: (asBinary) =>
+                            asBinary ? res.arrayBuffer() : res.text(),
+                    };
+                },
+                addStyle(textContent) {
+                    const style = Object.assign(
+                        document.createElement("style"),
+                        { textContent },
+                    );
+                    const ref =
+                        document.head.getElementsByTagName("style")[0] || null;
+                    document.head.insertBefore(style, ref);
+                },
+            };
 
-        app.mount('#app');
+            const { loadModule } = window["vue3-sfc-loader"];
 
-    </script>
-</body>
+            const app = Vue.createApp({
+                data() {
+                    return {
+                        projects: [],
+                        stats: [],
+                    };
+                },
+                methods: {
+                    fetchData() {
+                        const id =
+                            "1wUt8YqGlq8WcASUw69q-WgLHJ6BM1bxxxo2eMxtuXnY";
+                        const gid = "0";
+                        const url =
+                            "https://docs.google.com/spreadsheets/d/" +
+                            id +
+                            "/gviz/tq?tqx=out:json&tq&gid=" +
+                            gid;
+                        fetch(url)
+                            .then((res) => {
+                                if (!res.ok)
+                                    throw new Error("Cannot fetch data!");
+                                return res.text();
+                            })
+                            .then((rawData) => {
+                                let data = JSON.parse(
+                                    rawData.match(
+                                        new RegExp(
+                                            '(?:^|\\,)"table":(.*?)(?:}\\);|$)',
+                                        ),
+                                    )[1],
+                                );
+                                let table = [];
+                                let row = [];
+                                data.cols.forEach((colonne) =>
+                                    row.push(colonne.label),
+                                );
+                                table.push(row);
+                                data.rows.forEach((r) => {
+                                    let row = [];
+                                    r.c.forEach((cel) => {
+                                        try {
+                                            var value = cel.f ? cel.f : cel.v;
+                                        } catch (e) {
+                                            var value = "";
+                                        }
+                                        row.push(value);
+                                    });
+                                    table.push(row);
+                                });
+                                // create a Object using the first row as key
+                                for (let i = 2; i < table.length; i++) {
+                                    let obj = {};
+                                    for (let j = 0; j < table[1].length; j++) {
+                                        obj[table[1][j]] = table[i][j];
+                                    }
+                                    this.projects.push(obj);
+                                }
+                            });
+                    },
+                    fetchStat() {
+                        const id =
+                            "1wUt8YqGlq8WcASUw69q-WgLHJ6BM1bxxxo2eMxtuXnY";
+                        const gid = "747570329";
+                        const url =
+                            "https://docs.google.com/spreadsheets/d/" +
+                            id +
+                            "/gviz/tq?tqx=out:json&tq&gid=" +
+                            gid;
+                        fetch(url)
+                            .then((res) => {
+                                if (!res.ok)
+                                    throw new Error("Cannot fetch data!");
+                                return res.text();
+                            })
+                            .then((rawData) => {
+                                let data = JSON.parse(
+                                    rawData.match(
+                                        new RegExp(
+                                            '(?:^|\\,)"table":(.*?)(?:}\\);|$)',
+                                        ),
+                                    )[1],
+                                );
+                                let table = [];
+                                let row = [];
+                                data.cols.forEach((colonne) =>
+                                    row.push(colonne.label),
+                                );
+                                table.push(row);
+                                data.rows.forEach((r) => {
+                                    let row = [];
+                                    r.c.forEach((cel) => {
+                                        try {
+                                            var value = cel.f ? cel.f : cel.v;
+                                        } catch (e) {
+                                            var value = "";
+                                        }
+                                        row.push(value);
+                                    });
+                                    table.push(row);
+                                });
+                                // create a Object using the first row as key
+                                for (let i = 1; i < table.length; i++) {
+                                    let obj = {};
+                                    obj[table[0][0]] = table[i][0];
+                                    obj[table[0][1]] = parseInt(table[i][1]);
+                                    this.stats.push(obj);
+                                }
+                            });
+                    },
+                },
+                components: {
+                    card: Vue.defineAsyncComponent(() =>
+                        loadModule("./Card.vue", options),
+                    ),
+                    "ring-chart": Vue.defineAsyncComponent(() =>
+                        loadModule("./RingChart.vue", options),
+                    ),
+                },
+                beforeMount() {
+                    this.fetchData();
+                    this.fetchStat();
+                },
+            });
+
+            app.mount("#app");
+        </script>
+    </body>
 </html>
